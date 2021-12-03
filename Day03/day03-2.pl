@@ -20,27 +20,19 @@ sub get_bits {
     return ( $ones, $zeroes );
 }
 
-# find most common bit
-sub most_common_bit {
-    my ($index, @diags) = @_;
+# Find most or least common bit based on comparison
+# string passed in as 'comp_func'
+sub find_bit {
+    my ($index, $comp_func, @diags) = @_;
 
     my ($ones, $zeroes) = get_bits($index, @diags);
 
-    return $ones >= $zeroes ? "1" : "0";
-}
-
-# find least common bit
-sub least_common_bit {
-    my ($index, @diags) = @_;
-
-    my ($ones, $zeroes) = get_bits($index, @diags);
-
-    return $ones < $zeroes ? "1" : "0";
+    return eval($comp_func) ? "1" : "0";
 }
 
 # find diag string based on bit function
 sub find_diag {
-    my ($index, $bit_func, @diags) = @_;
+    my ($index, $comp_func, @diags) = @_;
 
     if (scalar (@diags) == 1)
     {
@@ -48,16 +40,15 @@ sub find_diag {
     }
     else
     {
-        my $bit = $bit_func->($index, @diags);
-        print "bit is $bit\n";
+        my $bit = find_bit($index, $comp_func, @diags);
         my @new_diags = map { substr($_,$index,1) eq $bit ? $_ : ()  } @diags;
-        return find_diag( ++$index, $bit_func, @new_diags );
+        return find_diag( ++$index, $comp_func, @new_diags );
     }
 }
 
 # get diag strings
-my $oxygen_diag = find_diag(0, \&most_common_bit, @diags);
-my $c02_diag = find_diag(0, \&least_common_bit, @diags);
+my $oxygen_diag = find_diag(0, '$ones >= $zeroes', @diags);
+my $c02_diag = find_diag(0, '$ones < $zeroes', @diags);
 
 # Convert to numbers
 my $oxy = oct("0b" . $oxygen_diag);
