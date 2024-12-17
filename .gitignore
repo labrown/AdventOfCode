@@ -1,3 +1,4 @@
 .vscode/
 *venv*
 .cookie
+__pycache__
